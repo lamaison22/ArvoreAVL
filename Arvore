@@ -42,7 +42,7 @@ int alturaNo(No *no){
 int fatorBalanceamento(No *no){     //pode variar de -1 ate 1, se passar disso p cima ou p baixo ta desbalanceado
                                     //se negativo é p direita e se positivo é pra esquerda
     if(no){
-        return(alturaNo(no->esquerdo - alturaNo(no->direito)));
+        return(alturaNo(no->esquerdo) - alturaNo(no->direito));
 
     }
     else{
@@ -62,6 +62,9 @@ No* rotacaoEsquerda(No *raiz){
 
     raiz->altura=maior(alturaNo(raiz->esquerdo),alturaNo(raiz->direito))+1; // para atualizar as alturas/lugar
     y->altura=maior(alturaNo(y->esquerdo),alturaNo(y->direito))+1;
+    
+    
+    return y;
 
 }
 No* rotacaoDireita(No *raiz){
@@ -76,6 +79,8 @@ No* rotacaoDireita(No *raiz){
     raiz->altura=maior(alturaNo(raiz->esquerdo),alturaNo(raiz->direito))+1;  
     y->altura=maior(alturaNo(y->esquerdo),alturaNo(y->direito))+1;
 
+    return y;
+
 }
 No * rotacaoDireitaEsquerda(No *raiz){ //ela pende pra direita, e depois pra esquerda
     raiz->direito=rotacaoDireita(raiz->direito); //primeiro bota tudo pra direita depois arruma colocando pra esquerda
@@ -84,6 +89,29 @@ No * rotacaoDireitaEsquerda(No *raiz){ //ela pende pra direita, e depois pra esq
 No * rotacaoEsquerdaDireita(No *raiz){ //ela pende pra esquerda, e depois pra direita
     raiz->esquerdo=rotacaoEsquerda(raiz->esquerdo); //primeiro bota tudo pra esquerda depois arruma colocando pra direita
     return rotacaoDireita(raiz);
+}
+
+
+No * balancear(No *raiz){
+    int fator=fatorBalanceamento(raiz);
+    //rotacao p esquerda
+    if(fator<-1 && fatorBalanceamento(raiz->direito)<=0){
+        raiz=rotacaoEsquerda(raiz);
+    }
+    //rotacao p direita
+    else if(fator>1&&fatorBalanceamento(raiz->esquerdo)>=0){
+        raiz=rotacaoDireita(raiz);
+    }
+    //rot dupla esquerda
+    else if(fator>1&&fatorBalanceamento(raiz->esquerdo)<0){
+        raiz=rotacaoEsquerdaDireita(raiz);
+    }
+    //rot dupla direita
+    else if(fator<1 &&fatorBalanceamento(raiz->direito)>0){
+        raiz=rotacaoDireitaEsquerda(raiz);
+    }
+
+    return raiz;
 }
 
 //insercoes e remocoes
@@ -100,36 +128,18 @@ No* inserir(No *raiz, int valor){
             raiz->direito=inserir(raiz->direito,valor);
         }
         else{
-            printf("insercao realizada \n o elemento %d existe \n",valor);
+            printf("insercao nao realizada \n o elemento %d existe \n",valor);
         }
+    }
+
         //recalcula altura de todos os nos entre a raiz e o novo no
         raiz->altura=maior(alturaNo(raiz->esquerdo),alturaNo(raiz->direito))+1;
         //verfica a necessidade de rebalancear a arvore
         raiz=balancear(raiz);
         return raiz;
-    }
-}
-No * balancear(No *raiz){
-    int fator=fatorBalanceamento(raiz);
-    //rotacao p esquerda
-    if(fator<-1 && fatorBalanceamento(raiz->direito)<=0){
-        raiz=rotacaoEsquerda;
-    }
-    //rotacao p direita
-    else if(fator>1&&fatorBalanceamento(raiz->esquerdo)>=0){
-        raiz=rotacaoDireita(raiz);
-    }
-    //rot dupla esquerda
-    else if(fator>1&&fatorBalanceamento(raiz->esquerdo)<0){
-        raiz=rotacaoEsquerdaDireita(raiz);
-    }
-    //rot dupla direita
-    else if(fator<1 &&fatorBalanceamento(raiz->direito)>0){
-        raiz=rotacaoDireitaEsquerda;
-    }
 
-    return raiz;
 }
+
 
 
 //remocao
@@ -227,7 +237,7 @@ int main(){
             case 2:
             printf("\t Digite o valor a ser removido: ");
             scanf("%d",&valor);
-            raiz=inserir(raiz,valor);
+            raiz=remover(raiz,valor);
             break;
 
             case 3:
